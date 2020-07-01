@@ -1,5 +1,22 @@
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
+
+
+var getRepoName = function() {
+    //grab repo name from URL query string
+    var queryString = document.location.search;
+    // splitting the query string into an array
+    var repoName = queryString.split("=")[1];
+    if(repoName) {
+        //display repop name on the page
+        repoNameEl.textContent = repoName;
+        getRepoIssues(repoName);
+    } else {
+        //if no repo was given, redirect to homepage using .replace
+        document.location.replace("/index.html");
+    }
+};
 
 var getRepoIssues = function (repo) {
   console.log(repo);
@@ -9,22 +26,24 @@ var getRepoIssues = function (repo) {
     //request was successful
     if (response.ok) {
       response.json().then(function (data) {
+          //pass response date to dom function
+          displayIssues(data)
           //check if api has pagination issues
           if (response.headers.get("Link")) {
               displayWarning(repo);
           }
-        //pass response date to dom function
-        displayissues(data);
+        // //pass response date to dom function
+        // displayissues(data);
       });
     } else {
-      alert("There was a problem with your requets!");
+        //if not successful, redirect to homepage
+      document.location.replace("/index.html");
     }
   });
 };
 
-getRepoIssues("angular/angular");
 
-var displayissues = function (issues) {
+var displayIssues = function (issues) {
     if(issues.length === 0) {
         issueContainerEl.textContent = "This repo has no open issues!";
         return;
@@ -72,4 +91,6 @@ var displayWarning = function(repo) {
     //append to warning container
     limitWarningEl.appendChild(linkEl);
 };
+
+getRepoName();
   
