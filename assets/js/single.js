@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function (repo) {
   console.log(repo);
@@ -8,6 +9,10 @@ var getRepoIssues = function (repo) {
     //request was successful
     if (response.ok) {
       response.json().then(function (data) {
+          //check if api has pagination issues
+          if (response.headers.get("Link")) {
+              displayWarning(repo);
+          }
         //pass response date to dom function
         displayissues(data);
       });
@@ -17,7 +22,7 @@ var getRepoIssues = function (repo) {
   });
 };
 
-getRepoIssues("facebook/react");
+getRepoIssues("angular/angular");
 
 var displayissues = function (issues) {
     if(issues.length === 0) {
@@ -53,3 +58,18 @@ var displayissues = function (issues) {
     issueContainerEl.appendChild(issueEl);
   }
 };
+
+var displayWarning = function(repo) {
+    //add text to warning container
+    limitWarningEl.textContent = "To see more than 30 issues, visit ";
+
+    //append link element with an href attr
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on Github.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    //append to warning container
+    limitWarningEl.appendChild(linkEl);
+};
+  
